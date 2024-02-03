@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection.Metadata;
-using System.Xml;
 
 namespace CH341Net;
 
