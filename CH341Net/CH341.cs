@@ -4,8 +4,6 @@ using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.IO;
 using System.Text;
-using System.Security.Cryptography.X509Certificates;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CH341Net;
 
@@ -94,17 +92,80 @@ public class CH341
     [DllImport(dllName)]
     private static extern bool CH341StreamI2C(ulong index, ulong writeLength, IntPtr writeBuffer, ulong readLength, IntPtr readBuffer);
     [DllImport(dllName)]
-    private static extern bool CH341GetInput(ulong iIndex, ref ulong iStatus);
+    private static extern bool CH341GetInput(ulong index, ref ulong status);
+    [DllImport(dllName)]
+    private static extern bool CH341SetOutput(ulong index, ulong enable, ulong setDirOut, ulong setDataOut);
+    [DllImport(dllName)]
+    private static extern bool CH341SetDeviceNotify(ulong index, IntPtr deviceID, NotifyRoutine notifyRoutine);
 
+    public static void ResetDevice(ulong index)
+    {
+        if (!CH341ResetDevice(index))
+            throw new Exception("Reset device error.");
+    }
 
-    public static ulong GetVersion() => CH341GetVersion();
-    public static ulong GetDriverVersion() => CH341GetDrvVersion();
+    public static void SetDeviceNotify(ulong index, NotifyRoutine notifyRoutine)
+    {
+        if (!CH341SetDeviceNotify(index, IntPtr.Zero, notifyRoutine))
+            throw new Exception("Set device notify error.");
+    }
+
+    public static byte ReadI2C(ulong index, byte slave, byte address)
+    {
+        byte result = 0;
+        if (!CH341ReadI2C(index, slave, address, ref result))
+            throw new Exception("Read I2C error.");
+        return result;
+    }
+
     /// <summary>
-    /// 
+    ///  Set the I/O direction for the CH341 and output data over the CH341.
     /// </summary>
-    /// <param name="index"></param>
-    /// <param name="status"></param>
-    /// <returns></returns>
+    /// <param name="index">Specify the CH341 device number.</param>
+    /// <param name="enable"> Data valid flag, refer to the bit description below.</param>
+    /// <param name="setDirOut">To set the I/O direction, pin 0 corresponds to input and pin 1 corresponds to output. In parallel port mode, the default value is 0x000FC000. Refer to the bit description below</param>
+    ///<param name="setDataOut">Output data. If the I/O direction is output, then a clear 0 corresponds to pin output low level, and a position 1 corresponds to pin output high level, refer to the bit description below</param>
+    public static void SetOutput(ulong index, ulong enable, ulong setDirOut, ulong setDataOut)
+    {
+        if (!CH341SetOutput(index, enable, setDirOut,setDataOut))
+            throw new Exception("SetOutput error.");
+    }
+
+    /// <summary>
+    /// Set the hardware asynchronous delay to a specified number of milliseconds before the next stream operation.
+    /// </summary>
+    /// <param name="index">Specify the CH341 device number.</param>
+    /// <param name="delay">Specifies the number of milliseconds to delay.</param>
+    public static void SetDelay(ulong index, ulong delay)
+    {
+        if (!CH341SetDelaymS(index, delay))
+            throw new Exception("Error setting the delay.");
+    }
+
+    /// <summary>
+    /// Get the DLL version number, return the version number.
+    /// </summary>
+    public static ulong GetDllVersion() => CH341GetVersion();
+    /// <summary>
+    /// Get the driver version number, return the version number, or return 0 if there is an error.
+    /// Will return an error if it was called before the device was opened.
+    /// </summary>
+    public static ulong GetDriverVersion()
+    {
+        var result = CH341GetVersion();
+        if (result == 0)
+            throw new Exception("Error getting driver version.");
+        return result;
+    }
+    /// <summary>
+    /// Input data and status directly through CH341
+    /// </summary>
+    /// <param name="index">Specify the serial number of the CH341 device</param>
+    /// <returns>
+    /// Bit 7-bit 0 correspond to D7-D0 pins of CH341.
+    /// Bit 8 corresponds to ERR# pin of CH341, Bit 9 corresponds to PEMP pin of CH341, Bit 10 corresponds to INT# pin of CH341, Bit 11 corresponds to SLCT pin of CH341, Bit 23 corresponds to SDA pin of CH341.
+    /// Bit 13 corresponds to BUSY/WAIT# pin of CH341, Bit 14 corresponds to AUTOFD#/DATAS# pin of CH341, Bit 15 corresponds to SLCTIN#/ADDRS# pin of CH341.
+    /// </returns>
     public static ulong GetStatus(ulong index)
     {
         ulong status = 0;
@@ -116,7 +177,7 @@ public class CH341
     /// Get the CH341 device name.
     /// </summary>
     /// <param name="index">Specify the CH341 device number,0 corresponds to the first device.</param>
-    /// <returns>Returns the CH341 device name, or NULL on error.</returns>
+    /// <returns>Returns the CH341 device name.</returns>
     public static string GetDeviceName(ulong index)
     {
         var name = Marshal.PtrToStringUTF8(CH341GetDeviceName(index));
@@ -129,8 +190,18 @@ public class CH341
     /// Open the CH341 device.
     /// </summary>
     /// <param name="index">Specify the device serial number of CH341, 0 corresponds to the first device</param>
-    /// <returns>Return the handle, if an error occurs, it will be -1.</returns>
-    public static Handle OpenDevice(ulong index) => CH341OpenDevice(index);
+    /// <returns>Return the handle, if an error occurs, it will be invalid.</returns>
+    public static Handle OpenDevice(ulong index)
+    {
+        var handle = CH341OpenDevice(index);
+        if ((int)handle.Kind == 127)
+            throw new Exception("The device could not open.");
+        return handle;
+    }
+    /// <summary>
+    /// Close the CH341 device.
+    /// </summary>
+    /// <param name="index"> Specify the serial number of the CH341 device.</param>
     public static void CloseDevice(ulong index) => CH341CloseDevice(index);
     public static string GetDeviceDescr(ulong index)
     {
@@ -165,7 +236,15 @@ public class CH341
             throw new Exception("Error determining device version.");
         return (DeviceVersion)result;
     }
-
+    /// <summary>
+    /// Using the CH341 to directly enter data and status is more efficient than using the <see cref="GetStatus(ulong)"/>
+    /// </summary>
+    /// <param name="index">Specify the serial number of the CH341 device</param>
+    /// <returns>
+    /// Bit 7-bit 0 correspond to D7-D0 pins of CH341.
+    /// Bit 8 corresponds to ERR# pin of CH341, Bit 9 corresponds to PEMP pin of CH341, Bit 10 corresponds to INT# pin of CH341, Bit 11 corresponds to SLCT pin of CH341, Bit 23 corresponds to SDA pin of CH341.
+    /// Bit 13 corresponds to BUSY/WAIT# pin of CH341, Bit 14 corresponds to AUTOFD#/DATAS# pin of CH341, Bit 15 corresponds to SLCTIN#/ADDRS# pin of CH341.
+    /// </returns>
     public static ulong GetInput(ulong index)
     {
         ulong status = 0;
@@ -188,4 +267,14 @@ public class CH341
         CH341 = 0x10,
         Unknown
     }
+
+    public enum DeviceStatus : ulong
+    {
+        Arrival = 3,
+        Remove_Pend = 1,
+        Remove = 0
+    }
+
+    public delegate void NotifyRoutine(DeviceStatus deviceStatus);
+    Vector
 }

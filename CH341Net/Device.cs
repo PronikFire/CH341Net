@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection.Metadata;
+using System.Xml;
 
 namespace CH341Net;
 
@@ -14,35 +15,27 @@ public class Device
 
     public void OpenDevice(ulong index)
     {
+        if (DeviceStatus == Status.Opened)
+            throw new Exception("Device was already opened.");
         handle = CH341.OpenDevice(index);
-        Console.WriteLine(handle.ToString());
-        
-        if ((int)handle.Kind == 127)
-            throw new Exception("The device could not open.");
-
         this.index = index;
-        OpenDevice();
-    }
-    public bool TryOpenDevice(ulong index)
-    {
-        handle = CH341.OpenDevice(index);
-        if (handle.IsNil)
-            return false;
-
-        this.index = index;
-        OpenDevice();
-        return true;
-    }
-
-    private void OpenDevice()
-    {
         DeviceStatus = Status.Opened;
     }
 
     public void CloseDevice()
     {
+        if (DeviceStatus == Status.Closed)
+            throw new Exception("Device was already closed.");
         CH341.CloseDevice(index);
         DeviceStatus = Status.Closed;
+    }
+
+    public void ResetDevice()
+    {
+        if (DeviceStatus != Status.Opened)
+            throw new Exception("Device was not opened.");
+
+        CH341.ResetDevice(index);
     }
 
     ~Device()
