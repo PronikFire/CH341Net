@@ -97,6 +97,14 @@ public class CH341
     private static extern bool CH341SetOutput(ulong index, ulong enable, ulong setDirOut, ulong setDataOut);
     [DllImport(dllName)]
     private static extern bool CH341SetDeviceNotify(ulong index, IntPtr deviceID, NotifyRoutine notifyRoutine);
+    [DllImport (dllName)]
+    private static extern bool CH341SetIntRoutine(ulong index, IntRoutine intRoutine);
+
+    public static void SetIntRoutine(ulong index, IntRoutine intRoutine)
+    {
+        if (!CH341SetIntRoutine(index, intRoutine))
+            throw new Exception("Set int routine error.");
+    }
 
     public static void ResetDevice(ulong index)
     {
@@ -276,5 +284,5 @@ public class CH341
     }
 
     public delegate void NotifyRoutine(DeviceStatus deviceStatus);
-    Vector
+    public delegate void IntRoutine(ulong status);
 }
