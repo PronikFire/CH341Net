@@ -6,13 +6,13 @@ namespace CH341Net;
 public class Device
 {
     public string Name { get => CH341.GetDeviceName(index); }
-    public ulong PinsStatus { get => CH341.GetStatus(index); }
+    public uint PinsStatus { get => CH341.GetStatus(index); }
     public Status DeviceStatus { get; private set; } = Status.Unknow;
 
     private Handle handle;
-    private ulong index;
+    private uint index;
 
-    public void OpenDevice(ulong index)
+    public void OpenDevice(uint index)
     {
         if (DeviceStatus == Status.Opened)
             throw new Exception("Device was already opened.");

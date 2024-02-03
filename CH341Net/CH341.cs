@@ -9,152 +9,155 @@ namespace CH341Net;
 public class CH341
 {
     const string dllName = "CH341DLLA64.DLL";
-    const ulong maxBufferLength = 0x1000;
+    const uint maxBufferLength = 0x1000;
 
     [DllImport(dllName)]
-    private static extern ulong CH341GetVersion();
+    private static extern uint CH341GetVersion();
     [DllImport(dllName)]
-    private static extern ulong CH341GetDrvVersion();
+    private static extern uint CH341GetDrvVersion();
     [DllImport(dllName)]
-    private static extern bool CH341GetStatus(ulong index, ref ulong status);
+    private static extern bool CH341GetStatus(uint index, ref uint status);
     [DllImport(dllName)]
-    private static unsafe extern IntPtr CH341GetDeviceName(ulong index);
+    private static unsafe extern IntPtr CH341GetDeviceName(uint index);
     [DllImport(dllName)]
-    private static extern Handle CH341OpenDevice(ulong index);
+    private static extern Handle CH341OpenDevice(uint index);
     [DllImport(dllName)]
-    private static extern void CH341CloseDevice(ulong index);
+    private static extern void CH341CloseDevice(uint index);
     [DllImport(dllName)]
-    private static extern bool CH341ResetDevice(ulong index);
+    private static extern bool CH341ResetDevice(uint index);
     [DllImport(dllName)]
-    private static unsafe extern bool CH341GetDeviceDescr(ulong index, void* buffer, ref ulong length);
+    private static unsafe extern bool CH341GetDeviceDescr(uint index, void* buffer, ref uint length);
     [DllImport(dllName)]
-    private static unsafe extern bool CH341GetConfigDescr(ulong index, void* buffer, ref ulong length);
+    private static unsafe extern bool CH341GetConfigDescr(uint index, void* buffer, ref uint length);
     [DllImport(dllName)]
-    private static extern bool CH341ReadInter(ulong index, ref ulong status);
+    private static extern bool CH341ReadInter(uint index, ref uint status);
     [DllImport(dllName)]
-    private static extern bool CH341AbortInter(ulong index);
+    private static extern bool CH341AbortInter(uint index);
     [DllImport(dllName)]
-    private static extern bool CH341SetParaMode(ulong index, ulong mode);
+    private static extern bool CH341SetParaMode(uint index, uint mode);
     [DllImport(dllName)]
-    private static extern bool CH341InitParallel(ulong index, ulong mode);
+    private static extern bool CH341InitParallel(uint index, uint mode);
     [DllImport(dllName)]
-    private static unsafe extern bool CH341ReadData0(ulong index, void* buffer, ref ulong length);
+    private static unsafe extern bool CH341ReadData0(uint index, void* buffer, ref uint length);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341ReadData1(ulong index, void* buffer, ref ulong length);
+    private static unsafe extern bool  CH341ReadData1(uint index, void* buffer, ref uint length);
     [DllImport(dllName)]
-    private static extern bool  CH341AbortRead(ulong index);
+    private static extern bool  CH341AbortRead(uint index);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341WriteData0(ulong index, void* buffer, ref ulong length);
+    private static unsafe extern bool  CH341WriteData0(uint index, void* buffer, ref uint length);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341WriteData1(ulong index, void* buffer, ref ulong length);
+    private static unsafe extern bool  CH341WriteData1(uint index, void* buffer, ref uint length);
     [DllImport(dllName)]
-    private static extern bool  CH341AbortWrite(ulong index);
+    private static extern bool  CH341AbortWrite(uint index);
     [DllImport(dllName)]
-    private static extern bool  CH341ReadI2C(ulong index, byte device, byte address, ref byte value);
+    private static extern bool  CH341ReadI2C(uint index, byte device, byte address, ref byte value);
     [DllImport(dllName)]
-    private static extern bool  CH341WriteI2C(ulong index, byte device, byte address, byte value);
+    private static extern bool  CH341WriteI2C(uint index, byte device, byte address, byte value);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341EppReadData(ulong index, void* buffer, ref ulong length);
+    private static unsafe extern bool  CH341EppReadData(uint index, void* buffer, ref uint length);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341EppReadAddr(ulong index, void* buffer, ref ulong length);
+    private static unsafe extern bool  CH341EppReadAddr(uint index, void* buffer, ref uint length);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341EppWriteData(ulong index, void* iBuffer, ref ulong ioLength);
+    private static unsafe extern bool  CH341EppWriteData(uint index, void* iBuffer, ref uint ioLength);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341EppWriteAddr(ulong index, void* buffer, ref ulong length);
+    private static unsafe extern bool  CH341EppWriteAddr(uint index, void* buffer, ref uint length);
     [DllImport(dllName)]
-    private static extern bool  CH341EppSetAddr(ulong index, byte address);
+    private static extern bool  CH341EppSetAddr(uint index, byte address);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341MemReadAddr0(ulong index, void* buffer, ref ulong length);
+    private static unsafe extern bool  CH341MemReadAddr0(uint index, void* buffer, ref uint length);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341MemReadAddr1(ulong index, void* buffer, ref ulong length);
+    private static unsafe extern bool  CH341MemReadAddr1(uint index, void* buffer, ref uint length);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341MemWriteAddr0(ulong index, void* buffer, ref ulong length);
+    private static unsafe extern bool  CH341MemWriteAddr0(uint index, void* buffer, ref uint length);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341MemWriteAddr1(ulong index, void* buffer, ref ulong length);
+    private static unsafe extern bool  CH341MemWriteAddr1(uint index, void* buffer, ref uint length);
     [DllImport(dllName)]
-    private static extern bool  CH341SetExclusive(ulong index, bool isExclusive);
+    private static extern bool  CH341SetExclusive(uint index, bool isExclusive);
     [DllImport(dllName)]
-    private static extern bool  CH341SetTimeout(ulong index, ulong writeTimeout, ulong readTimeout);
+    private static extern bool  CH341SetTimeout(uint index, uint writeTimeout, uint readTimeout);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341ReadData(ulong index, void* buffer, ref ulong length);
+    private static unsafe extern bool  CH341ReadData(uint index, void* buffer, ref uint length);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341WriteData(ulong index, void* buffer, ref ulong length);
+    private static unsafe extern bool  CH341WriteData(uint index, void* buffer, ref uint length);
     [DllImport(dllName)]
-    private static extern ulong  CH341GetVerIC(ulong index);
+    private static extern uint  CH341GetVerIC(uint index);
     [DllImport(dllName)]
-    private static extern bool  CH341FlushBuffer(ulong index);
+    private static extern bool  CH341FlushBuffer(uint index);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341WriteRead(ulong index, ulong writeLength, void* writeBuffer, ulong readStep, ulong readTimes, ref ulong readLength, void* readBuffer);
+    private static unsafe extern bool  CH341WriteRead(uint index, uint writeLength, void* writeBuffer, uint readStep, uint readTimes, ref uint readLength, void* readBuffer);
     [DllImport(dllName)]
-    private static extern bool CH341SetStream(ulong index, ulong mode);
+    private static extern bool CH341SetStream(uint index, uint mode);
     [DllImport(dllName)]
-    private static extern bool CH341SetDelaymS(ulong index, ulong delay);
+    private static extern bool CH341SetDelaymS(uint index, uint delay);
     [DllImport(dllName)]
-    private static unsafe extern bool CH341StreamI2C(ulong index, ulong writeLength, void* writeBuffer, ulong readLength, void* readBuffer);
+    private static unsafe extern bool CH341StreamI2C(uint index, uint writeLength, void* writeBuffer, uint readLength, void* readBuffer);
     [DllImport(dllName)]
-    private static extern bool CH341GetInput(ulong index, ref ulong status);
+    private static extern bool CH341GetInput(uint index, ref uint status);
     [DllImport(dllName)]
-    private static extern bool CH341SetOutput(ulong index, ulong enable, ulong setDirOut, ulong setDataOut);
+    private static extern bool CH341SetOutput(uint index, uint enable, uint setDirOut, uint setDataOut);
     [DllImport(dllName)]
-    private static extern bool CH341SetDeviceNotify(ulong index, IntPtr deviceID, NotifyRoutine notifyRoutine);
+    private static extern bool CH341SetDeviceNotify(uint index, IntPtr deviceID, NotifyRoutine notifyRoutine);
     [DllImport(dllName)]
-    private static extern bool CH341SetIntRoutine(ulong index, IntRoutine intRoutine);
+    private static extern bool CH341SetIntRoutine(uint index, IntRoutine intRoutine);
 
 
-    public static unsafe byte[] ReadData0(ulong index)
+    public static unsafe byte[] ReadData0(uint index)
     {
-        ulong length = maxBufferLength;
+        uint length = maxBufferLength;
         byte[] buffer = new byte[length];
-        if (!CH341ReadData0(index, &buffer, ref length))
-            throw new Exception("Read data at 0 error.");
+        fixed (void* point = buffer)
+        {
+            if (!CH341ReadData0(index, point, ref length))
+                throw new Exception("Read data at 0 error.");
+        }
         return buffer;
     }
 
-    public static void InitParallel(ulong index, ParaMode mode)
+    public static void InitParallel(uint index, ParaMode mode)
     {
-        if (CH341InitParallel(index, (ulong)mode))
+        if (CH341InitParallel(index, (uint)mode))
             throw new Exception("Set parallel port mode error.");
     }
 
-    public static void SetParaMode(ulong index, ParaMode mode)
+    public static void SetParaMode(uint index, ParaMode mode)
     {
-        if (CH341SetParaMode(index, (ulong)mode))
+        if (CH341SetParaMode(index, (uint)mode))
             throw new Exception("Set parallel port mode error.");
     }
 
-    public static void AbortInter(ulong index)
+    public static void AbortInter(uint index)
     {
         if (!CH341AbortInter(index))
             throw new Exception("Abort inter error.");
     }
 
-    public static ulong ReadInter(ulong index)
+    public static uint ReadInter(uint index)
     {
-        ulong status = 0;
+        uint status = 0;
         if (!CH341ReadInter(index, ref status))
             throw new Exception("Read inter error.");
         return status;
     }
 
-    public static void SetIntRoutine(ulong index, IntRoutine intRoutine)
+    public static void SetIntRoutine(uint index, IntRoutine intRoutine)
     {
         if (!CH341SetIntRoutine(index, intRoutine))
             throw new Exception("Set int routine error.");
     }
 
-    public static void ResetDevice(ulong index)
+    public static void ResetDevice(uint index)
     {
         if (!CH341ResetDevice(index))
             throw new Exception("Reset device error.");
     }
 
-    public static void SetDeviceNotify(ulong index, NotifyRoutine notifyRoutine)
+    public static void SetDeviceNotify(uint index, NotifyRoutine notifyRoutine)
     {
         if (!CH341SetDeviceNotify(index, IntPtr.Zero, notifyRoutine))
             throw new Exception("Set device notify error.");
     }
 
-    public static byte ReadI2C(ulong index, byte slave, byte address)
+    public static byte ReadI2C(uint index, byte slave, byte address)
     {
         byte result = 0;
         if (!CH341ReadI2C(index, slave, address, ref result))
@@ -169,7 +172,7 @@ public class CH341
     /// <param name="enable"> Data valid flag, refer to the bit description below.</param>
     /// <param name="setDirOut">To set the I/O direction, pin 0 corresponds to input and pin 1 corresponds to output. In parallel port mode, the default value is 0x000FC000. Refer to the bit description below</param>
     ///<param name="setDataOut">Output data. If the I/O direction is output, then a clear 0 corresponds to pin output low level, and a position 1 corresponds to pin output high level, refer to the bit description below</param>
-    public static void SetOutput(ulong index, ulong enable, ulong setDirOut, ulong setDataOut)
+    public static void SetOutput(uint index, uint enable, uint setDirOut, uint setDataOut)
     {
         if (!CH341SetOutput(index, enable, setDirOut,setDataOut))
             throw new Exception("SetOutput error.");
@@ -180,7 +183,7 @@ public class CH341
     /// </summary>
     /// <param name="index">Specify the CH341 device number.</param>
     /// <param name="delay">Specifies the number of milliseconds to delay.</param>
-    public static void SetDelay(ulong index, ulong delay)
+    public static void SetDelay(uint index, uint delay)
     {
         if (!CH341SetDelaymS(index, delay))
             throw new Exception("Error setting the delay.");
@@ -189,12 +192,12 @@ public class CH341
     /// <summary>
     /// Get the DLL version number, return the version number.
     /// </summary>
-    public static ulong GetDllVersion() => CH341GetVersion();
+    public static uint GetDllVersion() => CH341GetVersion();
     /// <summary>
     /// Get the driver version number, return the version number, or return 0 if there is an error.
     /// Will return an error if it was called before the device was opened.
     /// </summary>
-    public static ulong GetDriverVersion()
+    public static uint GetDriverVersion()
     {
         var result = CH341GetVersion();
         if (result == 0)
@@ -210,9 +213,9 @@ public class CH341
     /// Bit 8 corresponds to ERR# pin of CH341, Bit 9 corresponds to PEMP pin of CH341, Bit 10 corresponds to INT# pin of CH341, Bit 11 corresponds to SLCT pin of CH341, Bit 23 corresponds to SDA pin of CH341.
     /// Bit 13 corresponds to BUSY/WAIT# pin of CH341, Bit 14 corresponds to AUTOFD#/DATAS# pin of CH341, Bit 15 corresponds to SLCTIN#/ADDRS# pin of CH341.
     /// </returns>
-    public static ulong GetStatus(ulong index)
+    public static uint GetStatus(uint index)
     {
-        ulong status = 0;
+        uint status = 0;
         if (!CH341GetStatus(index, ref status))
             throw new Exception("Error getting result");
         return status;
@@ -222,7 +225,7 @@ public class CH341
     /// </summary>
     /// <param name="index">Specify the CH341 device number,0 corresponds to the first device.</param>
     /// <returns>Returns the CH341 device name.</returns>
-    public static string GetDeviceName(ulong index)
+    public static string GetDeviceName(uint index)
     {
         var name = Marshal.PtrToStringUTF8(CH341GetDeviceName(index));
         if (name is null)
@@ -235,7 +238,7 @@ public class CH341
     /// </summary>
     /// <param name="index">Specify the device serial number of CH341, 0 corresponds to the first device</param>
     /// <returns>Return the handle, if an error occurs, it will be invalid.</returns>
-    public static Handle OpenDevice(ulong index)
+    public static Handle OpenDevice(uint index)
     {
         var handle = CH341OpenDevice(index);
         if ((int)handle.Kind == 127)
@@ -246,34 +249,38 @@ public class CH341
     /// Close the CH341 device.
     /// </summary>
     /// <param name="index"> Specify the serial number of the CH341 device.</param>
-    public static void CloseDevice(ulong index) => CH341CloseDevice(index);
-    public static unsafe string GetDeviceDescr(ulong index)
+    public static void CloseDevice(uint index) => CH341CloseDevice(index);
+    public static unsafe string GetDeviceDescr(uint index)
     {
-        ulong length = maxBufferLength;
+        uint length = maxBufferLength;
         byte[] buffer = new byte[length];
-
-        if (!CH341GetDeviceDescr(index, &buffer, ref length))
-            throw new Exception("It is not possible to get the value.");
+        fixed (void* point = buffer)
+        {
+            if (!CH341GetDeviceDescr(index, point, ref length))
+                throw new Exception("It is not possible to get the value.");
+        }
 
         return Encoding.Unicode.GetString(buffer, 0, (int)length);
     }
-    public static unsafe string GetConfigDescr(ulong index)
+    public static unsafe string GetConfigDescr(uint index)
     {
-        ulong length = maxBufferLength;
+        uint length = maxBufferLength;
         byte[] buffer = new byte[length];
-
-        if (!CH341GetConfigDescr(index, &buffer, ref length))
-            throw new Exception("It is not possible to get the value.");
+        fixed (void* point = buffer )
+        {
+            if (!CH341GetConfigDescr(index, point, ref length))
+                throw new Exception("It is not possible to get the value.");
+        }
 
         return Encoding.Unicode.GetString(buffer, 0, (int)length);
     }
-    public static void WriteI2C(ulong index, byte device, byte address, byte value)
+    public static void WriteI2C(uint index, byte device, byte address, byte value)
     {
         if (!CH341WriteI2C(index, device, address, value))
             throw new Exception("I2C write error.");
     }
 
-    public static DeviceVersion GetDeviceVersion(ulong index)
+    public static DeviceVersion GetDeviceVersion(uint index)
     {
         var result = CH341GetVerIC(index);
         if (result == 0)
@@ -281,7 +288,7 @@ public class CH341
         return (DeviceVersion)result;
     }
     /// <summary>
-    /// Using the CH341 to directly enter data and status is more efficient than using the <see cref="GetStatus(ulong)"/>
+    /// Using the CH341 to directly enter data and status is more efficient than using the <see cref="GetStatus(uint)"/>
     /// </summary>
     /// <param name="index">Specify the serial number of the CH341 device</param>
     /// <returns>
@@ -289,22 +296,22 @@ public class CH341
     /// Bit 8 corresponds to ERR# pin of CH341, Bit 9 corresponds to PEMP pin of CH341, Bit 10 corresponds to INT# pin of CH341, Bit 11 corresponds to SLCT pin of CH341, Bit 23 corresponds to SDA pin of CH341.
     /// Bit 13 corresponds to BUSY/WAIT# pin of CH341, Bit 14 corresponds to AUTOFD#/DATAS# pin of CH341, Bit 15 corresponds to SLCTIN#/ADDRS# pin of CH341.
     /// </returns>
-    public static ulong GetInput(ulong index)
+    public static uint GetInput(uint index)
     {
-        ulong status = 0;
+        uint status = 0;
         if (!CH341GetInput(index, ref status))
             throw new Exception("Error getting result");
 
         return status;
     }
 
-    public static void ClearBuffer(ulong index)
+    public static void ClearBuffer(uint index)
     {
         if (!CH341FlushBuffer(index))
             throw new Exception("Buffer clearing error");
     }
 
-    public enum DeviceVersion : ulong
+    public enum DeviceVersion : uint
     {
         CH341A = 0x20,
         CH341A3 = 0x30,
@@ -312,21 +319,21 @@ public class CH341
         Unknown
     }
 
-    public enum DeviceStatus : ulong
+    public enum DeviceStatus : uint
     {
         Arrival = 3,
         Remove_Pend = 1,
         Remove = 0
     }
-    public enum ParaMode : ulong
+    public enum ParaMode : uint
     {
-        mCH341_PARA_MODE_EPP = 0x00,
-        mCH341_PARA_MODE_EPP17 = 0x00,
-        mCH341_PARA_MODE_EPP19 = 0x01,
-        mCH341_PARA_MODE_MEM = 0x02,
-        mCH341_PARA_MODE_ECP = 0x03
+        EPP = 0x00,
+        EPP17 = 0x00,
+        EPP19 = 0x01,
+        MEM = 0x02,
+        ECP = 0x03
     }
 
     public delegate void NotifyRoutine(DeviceStatus deviceStatus);
-    public delegate void IntRoutine(ulong status);
+    public delegate void IntRoutine(uint status);
 }
