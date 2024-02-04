@@ -16,22 +16,6 @@ public class Device
     private Handle handle;
     private uint index;
 
-    public void WriteI2C(byte slave, byte register, byte value)
-    {
-        if (DeviceStatus != Status.Opened)
-            throw new Exception("The device is not open.");
-
-        CH341.WriteI2C(index, slave, register, value);
-    }
-
-    public byte ReadI2C(byte slave, byte register)
-    {
-        if (DeviceStatus != Status.Opened)
-            throw new Exception("The device is not open.");
-
-        return CH341.ReadI2C(index, slave, register);
-    }
-
     public void Open(uint index)
     {
         if (DeviceStatus == Status.Opened)
@@ -61,7 +45,7 @@ public class Device
     public void Reset()
     {
         if (DeviceStatus != Status.Opened)
-            throw new Exception("Device was not opened.");
+            throw new Exception("The device is not open.");
 
         ResetDevice(index);
     }

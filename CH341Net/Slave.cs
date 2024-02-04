@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CH341Net;
 
 public class Slave
 {
-    private Device device;
+    protected private Device device;
+    protected private byte slaveAddress;
 
-    public Slave(ref Device device)
+    protected private Slave(ref Device device, byte slaveAddress)
     {
         this.device = device;
+        this.slaveAddress = slaveAddress;
     }
 }

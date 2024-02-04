@@ -176,10 +176,10 @@ public class CH341
             throw new Exception("Set device notify error.");
     }
 
-    public static byte ReadI2C(uint index, byte slave, byte register)
+    public static byte ReadI2C(uint index, byte slaveAddress, byte register)
     {
         byte result = 0;
-        if (!CH341ReadI2C(index, slave, register, ref result))
+        if (!CH341ReadI2C(index, slaveAddress, register, ref result))
             throw new Exception("Read I2C error.");
         return result;
     }
@@ -276,9 +276,9 @@ public class CH341
 
         return Encoding.Unicode.GetString(buffer, 0, (int)length);
     }
-    public static void WriteI2C(uint index, byte slave, byte register, byte value)
+    public static void WriteI2C(uint index, byte slaveAddress, byte register, byte value)
     {
-        if (!CH341WriteI2C(index, slave, register, value))
+        if (!CH341WriteI2C(index, slaveAddress, register, value))
             throw new Exception("I2C write error.");
     }
 
