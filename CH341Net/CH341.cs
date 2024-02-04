@@ -3,6 +3,9 @@ using System;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
+using System.Drawing;
+using System.Net.Http.Headers;
 
 namespace CH341Net;
 
@@ -18,7 +21,7 @@ public class CH341
     [DllImport(dllName)]
     private static extern bool CH341GetStatus(uint index, ref uint status);
     [DllImport(dllName)]
-    private static unsafe extern IntPtr CH341GetDeviceName(uint index);
+    private static extern IntPtr CH341GetDeviceName(uint index);
     [DllImport(dllName)]
     private static extern Handle CH341OpenDevice(uint index);
     [DllImport(dllName)]
@@ -26,9 +29,9 @@ public class CH341
     [DllImport(dllName)]
     private static extern bool CH341ResetDevice(uint index);
     [DllImport(dllName)]
-    private static unsafe extern bool CH341GetDeviceDescr(uint index, void* buffer, ref uint length);
+    private static extern bool CH341GetDeviceDescr(uint index, byte[] buffer, ref uint length);
     [DllImport(dllName)]
-    private static unsafe extern bool CH341GetConfigDescr(uint index, void* buffer, ref uint length);
+    private static extern bool CH341GetConfigDescr(uint index, byte[] buffer, ref uint length);
     [DllImport(dllName)]
     private static extern bool CH341ReadInter(uint index, ref uint status);
     [DllImport(dllName)]
@@ -38,15 +41,15 @@ public class CH341
     [DllImport(dllName)]
     private static extern bool CH341InitParallel(uint index, uint mode);
     [DllImport(dllName)]
-    private static unsafe extern bool CH341ReadData0(uint index, void* buffer, ref uint length);
+    private static extern bool CH341ReadData0(uint index, byte[] buffer, ref uint length);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341ReadData1(uint index, void* buffer, ref uint length);
+    private static extern bool  CH341ReadData1(uint index, byte[] buffer, ref uint length);
     [DllImport(dllName)]
     private static extern bool  CH341AbortRead(uint index);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341WriteData0(uint index, void* buffer, ref uint length);
+    private static extern bool  CH341WriteData0(uint index, byte[] buffer, ref uint length);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341WriteData1(uint index, void* buffer, ref uint length);
+    private static extern bool  CH341WriteData1(uint index, byte[] buffer, ref uint length);
     [DllImport(dllName)]
     private static extern bool  CH341AbortWrite(uint index);
     [DllImport(dllName)]
@@ -54,62 +57,78 @@ public class CH341
     [DllImport(dllName)]
     private static extern bool  CH341WriteI2C(uint index, byte device, byte address, byte value);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341EppReadData(uint index, void* buffer, ref uint length);
+    private static extern bool  CH341EppReadData(uint index, byte[] buffer, ref uint length);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341EppReadAddr(uint index, void* buffer, ref uint length);
+    private static extern bool  CH341EppReadAddr(uint index, byte[] buffer, ref uint length);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341EppWriteData(uint index, void* iBuffer, ref uint ioLength);
+    private static extern bool  CH341EppWriteData(uint index, byte[] buffer, ref uint length);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341EppWriteAddr(uint index, void* buffer, ref uint length);
+    private static extern bool  CH341EppWriteAddr(uint index, byte[] buffer, ref uint length);
     [DllImport(dllName)]
     private static extern bool  CH341EppSetAddr(uint index, byte address);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341MemReadAddr0(uint index, void* buffer, ref uint length);
+    private static extern bool  CH341MemReadAddr0(uint index, byte[] buffer, ref uint length);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341MemReadAddr1(uint index, void* buffer, ref uint length);
+    private static extern bool  CH341MemReadAddr1(uint index, byte[] buffer, ref uint length);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341MemWriteAddr0(uint index, void* buffer, ref uint length);
+    private static extern bool  CH341MemWriteAddr0(uint index, byte[] buffer, ref uint length);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341MemWriteAddr1(uint index, void* buffer, ref uint length);
+    private static extern bool  CH341MemWriteAddr1(uint index, byte[] buffer, ref uint length);
     [DllImport(dllName)]
     private static extern bool  CH341SetExclusive(uint index, bool isExclusive);
     [DllImport(dllName)]
     private static extern bool  CH341SetTimeout(uint index, uint writeTimeout, uint readTimeout);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341ReadData(uint index, void* buffer, ref uint length);
+    private static extern bool  CH341ReadData(uint index, byte[] buffer, ref uint length);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341WriteData(uint index, void* buffer, ref uint length);
+    private static extern bool  CH341WriteData(uint index, byte[] buffer, ref uint length);
     [DllImport(dllName)]
     private static extern uint  CH341GetVerIC(uint index);
     [DllImport(dllName)]
     private static extern bool  CH341FlushBuffer(uint index);
     [DllImport(dllName)]
-    private static unsafe extern bool  CH341WriteRead(uint index, uint writeLength, void* writeBuffer, uint readStep, uint readTimes, ref uint readLength, void* readBuffer);
+    private static extern bool  CH341WriteRead(uint index, uint writeLength, byte[] writeBuffer, uint readStep, uint readTimes, ref uint readLength, byte[] readBuffer);
     [DllImport(dllName)]
     private static extern bool CH341SetStream(uint index, uint mode);
     [DllImport(dllName)]
     private static extern bool CH341SetDelaymS(uint index, uint delay);
     [DllImport(dllName)]
-    private static unsafe extern bool CH341StreamI2C(uint index, uint writeLength, void* writeBuffer, uint readLength, void* readBuffer);
+    private static extern bool CH341StreamI2C(uint index, uint writeLength, byte[] writeBuffer, uint readLength, byte[] readBuffer);
     [DllImport(dllName)]
     private static extern bool CH341GetInput(uint index, ref uint status);
-    [DllImport(dllName)]
-    private static extern bool CH341SetOutput(uint index, uint enable, uint setDirOut, uint setDataOut);
     [DllImport(dllName)]
     private static extern bool CH341SetDeviceNotify(uint index, IntPtr deviceID, NotifyRoutine notifyRoutine);
     [DllImport(dllName)]
     private static extern bool CH341SetIntRoutine(uint index, IntRoutine intRoutine);
+    [DllImport(dllName)]
+    private static extern bool CH341SetupSerial(uint iIndex, uint iParityMode, uint iBaudRate);
 
+    public static void StreamI2C(uint index, uint writeLength, byte[] writeBuffer, uint readLength, byte[] readBuffer)
+    {
+        if (CH341StreamI2C(index, writeLength, writeBuffer, readLength, readBuffer))
+            throw new Exception("StreamI2C error.");
+    }
 
-    public static unsafe byte[] ReadData0(uint index)
+    public static void WriteData0(uint index, byte[] data)
+    {
+        if (data.Length > maxBufferLength)
+            throw new Exception("Overflow data write.");
+
+        uint length = (uint)data.Length;
+        byte[] buffer = new byte[length];
+
+        if (!CH341WriteData0(index, buffer, ref length))
+            throw new Exception("Write data at 0 error.");
+    }
+
+    public static byte[] ReadData0(uint index)
     {
         uint length = maxBufferLength;
         byte[] buffer = new byte[length];
-        fixed (void* point = buffer)
-        {
-            if (!CH341ReadData0(index, point, ref length))
-                throw new Exception("Read data at 0 error.");
-        }
+
+        if (!CH341ReadData0(index, buffer, ref length))
+            throw new Exception("Read data at 0 error.");
+
         return buffer;
     }
 
@@ -157,25 +176,12 @@ public class CH341
             throw new Exception("Set device notify error.");
     }
 
-    public static byte ReadI2C(uint index, byte slave, byte address)
+    public static byte ReadI2C(uint index, byte slave, byte register)
     {
         byte result = 0;
-        if (!CH341ReadI2C(index, slave, address, ref result))
+        if (!CH341ReadI2C(index, slave, register, ref result))
             throw new Exception("Read I2C error.");
         return result;
-    }
-
-    /// <summary>
-    ///  Set the I/O direction for the CH341 and output data over the CH341.
-    /// </summary>
-    /// <param name="index">Specify the CH341 device number.</param>
-    /// <param name="enable"> Data valid flag, refer to the bit description below.</param>
-    /// <param name="setDirOut">To set the I/O direction, pin 0 corresponds to input and pin 1 corresponds to output. In parallel port mode, the default value is 0x000FC000. Refer to the bit description below</param>
-    ///<param name="setDataOut">Output data. If the I/O direction is output, then a clear 0 corresponds to pin output low level, and a position 1 corresponds to pin output high level, refer to the bit description below</param>
-    public static void SetOutput(uint index, uint enable, uint setDirOut, uint setDataOut)
-    {
-        if (!CH341SetOutput(index, enable, setDirOut,setDataOut))
-            throw new Exception("SetOutput error.");
     }
 
     /// <summary>
@@ -250,42 +256,38 @@ public class CH341
     /// </summary>
     /// <param name="index"> Specify the serial number of the CH341 device.</param>
     public static void CloseDevice(uint index) => CH341CloseDevice(index);
-    public static unsafe string GetDeviceDescr(uint index)
+    public static string GetDeviceDescr(uint index)
     {
         uint length = maxBufferLength;
         byte[] buffer = new byte[length];
-        fixed (void* point = buffer)
-        {
-            if (!CH341GetDeviceDescr(index, point, ref length))
-                throw new Exception("It is not possible to get the value.");
-        }
+
+        if (!CH341GetDeviceDescr(index, buffer, ref length))
+            throw new Exception("It is not possible to get the value.");
 
         return Encoding.Unicode.GetString(buffer, 0, (int)length);
     }
-    public static unsafe string GetConfigDescr(uint index)
+    public static string GetConfigDescr(uint index)
     {
         uint length = maxBufferLength;
         byte[] buffer = new byte[length];
-        fixed (void* point = buffer )
-        {
-            if (!CH341GetConfigDescr(index, point, ref length))
-                throw new Exception("It is not possible to get the value.");
-        }
+
+        if (!CH341GetConfigDescr(index, buffer, ref length))
+            throw new Exception("It is not possible to get the value.");
 
         return Encoding.Unicode.GetString(buffer, 0, (int)length);
     }
-    public static void WriteI2C(uint index, byte device, byte address, byte value)
+    public static void WriteI2C(uint index, byte slave, byte register, byte value)
     {
-        if (!CH341WriteI2C(index, device, address, value))
+        if (!CH341WriteI2C(index, slave, register, value))
             throw new Exception("I2C write error.");
     }
 
-    public static DeviceVersion GetDeviceVersion(uint index)
+    public static DeviceType GetDeviceVersion(uint index)
     {
         var result = CH341GetVerIC(index);
         if (result == 0)
             throw new Exception("Error determining device version.");
-        return (DeviceVersion)result;
+        return (DeviceType)result;
     }
     /// <summary>
     /// Using the CH341 to directly enter data and status is more efficient than using the <see cref="GetStatus(uint)"/>
@@ -311,7 +313,7 @@ public class CH341
             throw new Exception("Buffer clearing error");
     }
 
-    public enum DeviceVersion : uint
+    public enum DeviceType : uint
     {
         CH341A = 0x20,
         CH341A3 = 0x30,
