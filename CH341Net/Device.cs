@@ -31,7 +31,7 @@ public class Device
             throw new Exception("The device is not open.");
         if (index > 15)
             throw new Exception("There is no pin with this index.");
-        return GetInput(index).ToString("B")[(int)index] == '1';
+        return GetInput(this.index).ToString("B")[(int)index] == '1';
     }
 
     public void Close()

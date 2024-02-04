@@ -1,5 +1,4 @@
 ﻿using CH341Net;
-using System.Linq;
 using static System.Console;
 
 public class Program
@@ -18,6 +17,9 @@ public class Program
         WriteLine($"Device descriptor: {device.DeviceDescriptor}");
         WriteLine($"Config descriptor: {device.ConfigDescriptor}");
         WriteLine($"Device status: {CH341.GetInput(0).ToString("B")}");
+        WriteLine("Pins state:");
+        for (uint i = 0; i <= 15; i++)
+            WriteLine($"\t{i} : {device.GetPinState(i)}");
 
         WriteLine("Press any key for close device");
         ReadLine();
