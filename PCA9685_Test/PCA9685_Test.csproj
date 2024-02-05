@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CH341Net\CH341Net.csproj" />
-    <ProjectReference Include="..\SlaveDevices\SlaveDevices.csproj" />
+    <ProjectReference Include="..\.src\CH341Net\CH341Net.csproj" />
+    <ProjectReference Include="..\.src\SlaveDevices\SlaveDevices.csproj" />
   </ItemGroup>
 
 </Project>

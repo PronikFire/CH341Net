@@ -24,7 +24,9 @@ public class Device
             isExclusive = value;
         }
     }
-         
+
+    public event Action<DeviceStatus>? OnDeviceStatusChange;
+
     private Handle handle;
     private uint index;
     private bool isExclusive;
@@ -36,6 +38,7 @@ public class Device
         if (DeviceStatus == Status.Closed)
             throw new Exception("Device was already closed.");
 
+        SetDeviceNotify(index, null);
         CloseDevice(index);
         DeviceStatus = Status.Closed;
     }
@@ -59,11 +62,20 @@ public class Device
         return ((GetInput(this.index) >> (int)index) & 1) == 1;
     }
 
+    private void DeviceStatusChange(DeviceStatus status)
+    {
+        if (OnDeviceStatusChange == null)
+            return;
+
+        OnDeviceStatusChange.Invoke(status);
+    }
+
     public Device(uint index, bool isExclusive = false)
     {
         handle = OpenDevice(index);
         this.index = index;
         IsExclusive = isExclusive;
+        SetDeviceNotify(index, DeviceStatusChange);
         DeviceStatus = Status.Opened; 
     }
 

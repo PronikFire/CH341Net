@@ -98,7 +98,7 @@ public class CH341
     [DllImport(dllName)]
     private static extern bool CH341SetDeviceNotify(uint index, IntPtr deviceID, NotifyRoutine? notifyRoutine);
     [DllImport(dllName)]
-    private static extern bool CH341SetIntRoutine(uint index, IntRoutine? intRoutine);
+    private static extern bool CH341SetIntRoutine(uint index, Action<uint>? intRoutine);
     [DllImport(dllName)]
     private static extern bool CH341SetupSerial(uint index, uint parityMode, uint baudRate);
 
@@ -163,7 +163,7 @@ public class CH341
         return status;
     }
 
-    public static void SetIntRoutine(uint index, IntRoutine? intRoutine)
+    public static void SetIntRoutine(uint index, Action<uint>? intRoutine)
     {
         if (!CH341SetIntRoutine(index, intRoutine))
             throw new Exception("Set int routine error.");
@@ -342,5 +342,4 @@ public class CH341
     }
 
     public delegate void NotifyRoutine(DeviceStatus deviceStatus);
-    public delegate void IntRoutine(uint status);
 }

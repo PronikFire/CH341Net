@@ -2,7 +2,7 @@
 using static CH341Net.CH341;
 using static System.Console;
 
-namespace Test;
+namespace CH341_Test;
 
 public class Program
 {
@@ -11,6 +11,7 @@ public class Program
         WriteLine($"DLL version: {GetDllVersion()}\n");
         WriteLine("Opening the device at index 0...");
         Device device = new Device(0);
+        device.OnDeviceStatusChange += (s) => WriteLine(s);
         WriteLine("Device was opened.");
         WriteLine($"Driver version: {GetDriverVersion()}\n");
 
@@ -25,9 +26,8 @@ public class Program
             WriteLine($"\t{i} : {device.GetPinState(i)}");
 
         WriteLine("\nPress any key for close device");
-        ReadLine();
-        WriteLine("\nClosing the device...");
+        Read();
+        WriteLine("Closing the device...");
         device.Close();
-        WriteLine("Device was closed.");
     }
 }

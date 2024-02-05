@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CH341Net\CH341Net.csproj" />
+    <ProjectReference Include="..\.src\CH341Net\CH341Net.csproj" />
   </ItemGroup>
 
 </Project>
