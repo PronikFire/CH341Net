@@ -4,6 +4,7 @@ using System.Reflection.Metadata;
 using System.Text;
 using System.Collections;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace CH341Net;
 
@@ -95,11 +96,17 @@ public class CH341
     [DllImport(dllName)]
     private static extern bool CH341GetInput(uint index, ref uint status);
     [DllImport(dllName)]
-    private static extern bool CH341SetDeviceNotify(uint index, IntPtr deviceID, NotifyRoutine notifyRoutine);
+    private static extern bool CH341SetDeviceNotify(uint index, IntPtr deviceID, NotifyRoutine? notifyRoutine);
     [DllImport(dllName)]
-    private static extern bool CH341SetIntRoutine(uint index, IntRoutine intRoutine);
+    private static extern bool CH341SetIntRoutine(uint index, IntRoutine? intRoutine);
     [DllImport(dllName)]
-    private static extern bool CH341SetupSerial(uint iIndex, uint iParityMode, uint iBaudRate);
+    private static extern bool CH341SetupSerial(uint index, uint parityMode, uint baudRate);
+
+    public static void SetExclusive(uint index, bool isExclusive)
+    {
+        if (!CH341SetExclusive(index, isExclusive))
+            throw new Exception("Set exclusive error.");
+    }
 
     public static void StreamI2C(uint index, uint writeLength, byte[] writeBuffer, uint readLength, byte[] readBuffer)
     {
@@ -130,13 +137,13 @@ public class CH341
         return buffer;
     }
 
-    public static void InitParallel(uint index, ParaMode mode)
+    public static void InitParallel(uint index, ParallelMode mode)
     {
         if (CH341InitParallel(index, (uint)mode))
             throw new Exception("Set parallel port mode error.");
     }
 
-    public static void SetParaMode(uint index, ParaMode mode)
+    public static void SetParaMode(uint index, ParallelMode mode)
     {
         if (CH341SetParaMode(index, (uint)mode))
             throw new Exception("Set parallel port mode error.");
@@ -156,7 +163,7 @@ public class CH341
         return status;
     }
 
-    public static void SetIntRoutine(uint index, IntRoutine intRoutine)
+    public static void SetIntRoutine(uint index, IntRoutine? intRoutine)
     {
         if (!CH341SetIntRoutine(index, intRoutine))
             throw new Exception("Set int routine error.");
@@ -168,7 +175,7 @@ public class CH341
             throw new Exception("Reset device error.");
     }
 
-    public static void SetDeviceNotify(uint index, NotifyRoutine notifyRoutine)
+    public static void SetDeviceNotify(uint index, NotifyRoutine? notifyRoutine)
     {
         if (!CH341SetDeviceNotify(index, IntPtr.Zero, notifyRoutine))
             throw new Exception("Set device notify error.");
@@ -325,7 +332,7 @@ public class CH341
         Remove_Pend = 1,
         Remove = 0
     }
-    public enum ParaMode : uint
+    public enum ParallelMode : uint
     {
         EPP = 0x00,
         EPP17 = 0x00,

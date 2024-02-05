@@ -1,8 +1,9 @@
 ﻿using CH341Net;
+using SlaveDevices.Drivers;
 using static CH341Net.CH341;
 using static System.Console;
 
-namespace Test;
+namespace PCA9685_Test;
 
 public class Program
 {
@@ -18,11 +19,9 @@ public class Program
         WriteLine($"Device name: {device.Name}");
         WriteLine($"Device descriptor: {device.DeviceDescriptor}");
         WriteLine($"Config descriptor: {device.ConfigDescriptor}");
-        WriteLine($"Device status: {GetInput(0).ToString("B")}\n");
 
-        WriteLine("Pins state:");
-        for (uint i = 0; i <= 15; i++)
-            WriteLine($"\t{i} : {device.GetPinState(i)}");
+        var pca9685 = new PCA9685(ref device);
+        WriteLine(pca9685.IsSleep);
 
         WriteLine("\nPress any key for close device");
         ReadLine();
