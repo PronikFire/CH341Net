@@ -20,7 +20,7 @@ public class Program
         WriteLine($"Device descriptor: {device.DeviceDescriptor}");
         WriteLine($"Config descriptor: {device.ConfigDescriptor}\n");
 
-        var pca9685 = new PCA9685(ref device);
+        PCA9685 pca9685 = new PCA9685(ref device);
         WriteLine("Is sleep: " + pca9685.IsSleep);
         if (pca9685.IsSleep)
         {
@@ -28,7 +28,14 @@ public class Program
             WriteLine("Wakeup");
         }
 
-        pca9685.SetPWMAll(0, 1228);
+        for (int i = 100; i > 0 ; i--)
+            pca9685.SetPWM(15, i);
+
+        for (int i = 100; i > 0; i--)
+            pca9685.SetPWM(14, i);
+
+        for (int i = 100; i > 0; i--)
+            pca9685.SetPWM(13, i);
 
         WriteLine("\nPress any key for close device");
         ReadLine();

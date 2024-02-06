@@ -5,8 +5,15 @@ using System.Reflection;
 
 namespace SlaveDevices.Drivers;
 
+/// <summary>
+/// PWM driver PCA9685.
+/// </summary>
 public class PCA9685 : Slave.I2C
 {
+    /// <summary>
+    /// Sleep mode.
+    /// Reduces current consumption.
+    /// </summary>
     public bool IsSleep
     {
         get => ((Read(0) >> 4) & 1) == 1;
@@ -15,6 +22,9 @@ public class PCA9685 : Slave.I2C
 
     public PCA9685(ref Device master, byte slaveAddress = 0x40) : base(ref master, slaveAddress) { }
 
+    /// <summary>
+    /// To restart all of the previously active PWM channels.
+    /// </summary>
     public void Restart()
     {
         Write(0, (byte)(Read(0) | (1 << 7)));
@@ -29,6 +39,11 @@ public class PCA9685 : Slave.I2C
         IsSleep = true;
     }
 
+    /// <summary>
+    /// Set PWM for all channels.
+    /// </summary>
+    /// <param name="on">Step at which the PWM signal will be HIGH. (maximum 4095)</param>
+    /// <param name="off">Step at which the PWM signal will be LOW. (maximum 4095)</param>
     public void SetPWMAll(ushort on, ushort off)
     {
         if (on > 4095)
@@ -43,6 +58,11 @@ public class PCA9685 : Slave.I2C
         Write(253, (byte)(off >> 8));
     }
 
+    /// <summary>
+    /// Sets PWM for the channel.
+    /// </summary>
+    /// <param name="index">PWM channel index. (maximum 15)</param>
+    /// <param name="fill">PWM fill percentage. (percentage, maximum 100)</param>
     public void SetPWM(byte index, float fill)
     {
         if (fill < 0 || fill > 100)
@@ -51,6 +71,11 @@ public class PCA9685 : Slave.I2C
         SetPWM(index, 0, (ushort)(4095 * (fill / 100f)));
     }
 
+    /// <summary>
+    /// Sets PWM for the channel.
+    /// </summary>
+    /// <param name="on">Step at which the PWM signal will be HIGH. (maximum 4095)</param>
+    /// <param name="off">Step at which the PWM signal will be LOW. (maximum 4095)</param>
     public void SetPWM(byte index, ushort on, ushort off)
     {
         if (index > 15)

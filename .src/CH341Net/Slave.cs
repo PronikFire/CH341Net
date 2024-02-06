@@ -15,9 +15,13 @@ public class Slave
         this.slaveAddress = slaveAddress;
     }
 
+    /// <summary>
+    /// Slave I2C.
+    /// </summary>
     public class I2C : Slave
     {
         public I2C(ref Device master, byte slaveAddress) : base(ref master, slaveAddress) { }
+
         public byte Read(byte register)
         {
             if (device.DeviceStatus != Status.Opened)

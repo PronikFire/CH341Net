@@ -98,22 +98,41 @@ public class CH341
     [DllImport(dllName)]
     private static extern bool CH341SetDeviceNotify(uint index, IntPtr deviceID, NotifyRoutine? notifyRoutine);
     [DllImport(dllName)]
-    private static extern bool CH341SetIntRoutine(uint index, Action<uint>? intRoutine);
+    private static extern bool CH341SetIntRoutine(uint index, IntRoutine? intRoutine);
     [DllImport(dllName)]
     private static extern bool CH341SetupSerial(uint index, uint parityMode, uint baudRate);
 
+
+    /// <summary>
+    /// Set exclusive use of the current CH341 device.
+    /// </summary>
+    /// <param name="index">Specify the CH341 device number.</param>
+    /// <param name="isExclusive">If the value is False, the device can be shared. If the value is not False, the device can be exclusively used</param>
     public static void SetExclusive(uint index, bool isExclusive)
     {
         if (!CH341SetExclusive(index, isExclusive))
             throw new Exception("Set exclusive error.");
     }
 
+    /// <summary>
+    /// Process I2C data stream, 2-wire interface, clock line for SCL pin, data line for SDA pin (quasi-bidirectional I/O), speed of about 56K bytes.
+    /// </summary>
+    /// <param name="index">Specify the CH341 device number.</param>
+    /// <param name="writeLength">Number of bytes of data to write out.</param>
+    /// <param name="writeBuffer">Buffer to place data to be written, usually with the I2C device address and read/write direction bits as the first byte.</param>
+    /// <param name="readLength">Number of bytes of data to be read.</param>
+    /// <param name="readBuffer">Buffer and returns the data read in.</param>
     public static void StreamI2C(uint index, uint writeLength, byte[] writeBuffer, uint readLength, byte[] readBuffer)
     {
         if (CH341StreamI2C(index, writeLength, writeBuffer, readLength, readBuffer))
             throw new Exception("StreamI2C error.");
     }
 
+    /// <summary>
+    /// Write data block to port 0#.
+    /// </summary>
+    /// <param name="index">Specify the serial number of the CH341 device.</param>
+    /// <param name="data">Buffer where the data to be written is placed</param>
     public static void WriteData0(uint index, byte[] data)
     {
         if (data.Length > maxBufferLength)
@@ -126,6 +145,11 @@ public class CH341
             throw new Exception("Write data at 0 error.");
     }
 
+    /// <summary>
+    /// Read data block from 0# port.
+    /// </summary>
+    /// <param name="index">Specify the serial number of the CH341 device.</param>
+    /// <param name="data">Buffer large enough to hold the read data.</param>
     public static byte[] ReadData0(uint index)
     {
         uint length = maxBufferLength;
@@ -137,24 +161,47 @@ public class CH341
         return buffer;
     }
 
+    /// <summary>
+    /// Reset and initialize the parallel port, RST# outputs a low-level pulse.
+    /// </summary>
+    /// <param name="index">Specify the serial number of the CH341 device.</param>
+    /// <param name="mode">Specify parallel port mode: 0 is EPP mode/EPP mode V1.7, 1 is EPP mode V1.9, 2 is MEM mode, >= 0x00000100 keep current mode.</param>
     public static void InitParallel(uint index, ParallelMode mode)
     {
         if (CH341InitParallel(index, (uint)mode))
             throw new Exception("Set parallel port mode error.");
     }
 
+    /// <summary>
+    /// Set parallel port mode.
+    /// </summary>
+    /// <param name="index">Specify the serial number of the CH341 device.</param>
+    /// <param name="mode">Specify parallel port mode: 0 is EPP mode/EPP mode V1.7, 1 is EPP mode V1.9, 2 is MEM mode.</param>
     public static void SetParaMode(uint index, ParallelMode mode)
     {
         if (CH341SetParaMode(index, (uint)mode))
             throw new Exception("Set parallel port mode error.");
     }
 
+    /// <summary>
+    /// Abort interrupt data read operation.
+    /// </summary>
+    /// <param name="index">Specify the serial number of the CH341 device.</param>
     public static void AbortInter(uint index)
     {
         if (!CH341AbortInter(index))
             throw new Exception("Abort inter error.");
     }
 
+    /// <summary>
+    /// Read interrupt data.
+    /// </summary>
+    /// <param name="index">Specify the serial number of the CH341 device.</param>
+    /// <returns>
+    /// Double word location used to store the read interrupt status data, see below.
+    /// Bit 7-bit 0 correspond to D7-D0 pins of CH341.
+    /// Bit 8 corresponds to err# pin of CH341, bit 9 corresponds to PEMP pin of CH341, bit 10 corresponds to int# pin of CH341, and bit 11 corresponds to SLCT pin of CH341.
+    /// </returns>
     public static uint ReadInter(uint index)
     {
         uint status = 0;
@@ -163,24 +210,45 @@ public class CH341
         return status;
     }
 
-    public static void SetIntRoutine(uint index, Action<uint>? intRoutine)
+    /// <summary>
+    /// Set interrupt service routine.
+    /// </summary>
+    /// <param name="index">Specify the serial number of the CH341 device.</param>
+    /// <param name="intRoutine">Specify the interrupt service routine, if it is NULL, the interrupt service will be cancelled, otherwise the routine will be called when interrupted.</param>
+    public static void SetIntRoutine(uint index, IntRoutine? intRoutine)
     {
         if (!CH341SetIntRoutine(index, intRoutine))
             throw new Exception("Set int routine error.");
     }
 
+    /// <summary>
+    /// Reset USB device.
+    /// </summary>
+    /// <param name="index">Specify the serial number of the CH341 device.</param>
     public static void ResetDevice(uint index)
     {
         if (!CH341ResetDevice(index))
             throw new Exception("Reset device error.");
     }
 
+    /// <summary>
+    /// Set up the device event notification procedure.
+    /// </summary>
+    /// <param name="index">Specify the CH341 device number,0 corresponds to the first device.</param>
+    /// <param name="notifyRoutine">Specifies a device event callback that cancels event notification if NULL, or is called when an event is detected.</param>
     public static void SetDeviceNotify(uint index, NotifyRoutine? notifyRoutine)
     {
         if (!CH341SetDeviceNotify(index, IntPtr.Zero, notifyRoutine))
             throw new Exception("Set device notify error.");
     }
 
+    /// <summary>
+    /// Read one byte of data from the I2C interface.
+    /// </summary>
+    /// <param name="index">Specify the serial number of the CH341 device.</param>
+    /// <param name="slaveAddress">The lower 7 bits specify the I2C device address.</param>
+    /// <param name="register">Address of specified data unit.</param>
+    /// <returns>Address of specified data unit.</returns>
     public static byte ReadI2C(uint index, byte slaveAddress, byte register)
     {
         byte result = 0;
@@ -204,6 +272,7 @@ public class CH341
     /// Get the DLL version number, return the version number.
     /// </summary>
     public static uint GetDllVersion() => CH341GetVersion();
+
     /// <summary>
     /// Get the driver version number, return the version number, or return 0 if there is an error.
     /// Will return an error if it was called before the device was opened.
@@ -215,6 +284,7 @@ public class CH341
             throw new Exception("Error getting driver version.");
         return result;
     }
+
     /// <summary>
     /// Input data and status directly through CH341
     /// </summary>
@@ -231,6 +301,7 @@ public class CH341
             throw new Exception("Error getting result");
         return status;
     }
+
     /// <summary>
     /// Get the CH341 device name.
     /// </summary>
@@ -256,11 +327,18 @@ public class CH341
             throw new Exception("The device could not open.");
         return handle;
     }
+
     /// <summary>
     /// Close the CH341 device.
     /// </summary>
     /// <param name="index"> Specify the serial number of the CH341 device.</param>
     public static void CloseDevice(uint index) => CH341CloseDevice(index);
+
+    /// <summary>
+    /// Read device descriptor.
+    /// </summary>
+    /// <param name="index">Specify the serial number of the CH341 device.</param>
+    /// <returns>Descriptor.</returns>
     public static string GetDeviceDescr(uint index)
     {
         uint length = maxBufferLength;
@@ -271,6 +349,12 @@ public class CH341
 
         return Encoding.Unicode.GetString(buffer, 0, (int)length);
     }
+
+    /// <summary>
+    /// Read configuration descriptor.
+    /// </summary>
+    /// <param name="index">Specify the serial number of the CH341 device.</param>
+    /// <returns>Descriptor.</returns>
     public static string GetConfigDescr(uint index)
     {
         uint length = maxBufferLength;
@@ -281,12 +365,24 @@ public class CH341
 
         return Encoding.Unicode.GetString(buffer, 0, (int)length);
     }
+
+    /// <summary>
+    /// Write a byte of data to the I2C interface.
+    /// </summary>
+    /// <param name="index">Specify the serial number of the CH341 device.</param>
+    /// <param name="slaveAddress">The lower 7 bits specify the I2C device address.</param>
+    /// <param name="register">Address of specified data unit.</param>
+    /// <param name="value">Byte data to be written.</param>
     public static void WriteI2C(uint index, byte slaveAddress, byte register, byte value)
     {
         if (!CH341WriteI2C(index, slaveAddress, register, value))
             throw new Exception("I2C write error.");
     }
 
+    ///<summary>
+    ///0= device invalid,0x10=CH341,0x20=CH341A.
+    ///</summary>
+    /// <param name="index">Specify the CH341 device number.</param>
     public static DeviceType GetDeviceVersion(uint index)
     {
         var result = CH341GetVerIC(index);
@@ -294,6 +390,7 @@ public class CH341
             throw new Exception("Error determining device version.");
         return (DeviceType)result;
     }
+
     /// <summary>
     /// Using the CH341 to directly enter data and status is more efficient than using the <see cref="GetStatus(uint)"/>
     /// </summary>
@@ -312,6 +409,10 @@ public class CH341
         return status;
     }
 
+    /// <summary>
+    /// Clear the buffer of CH341.
+    /// </summary>
+    /// <param name="index">Specify the CH341 device number.</param>
     public static void ClearBuffer(uint index)
     {
         if (!CH341FlushBuffer(index))
@@ -332,6 +433,7 @@ public class CH341
         Remove_Pend = 1,
         Remove = 0
     }
+
     public enum ParallelMode : uint
     {
         EPP = 0x00,
@@ -342,4 +444,5 @@ public class CH341
     }
 
     public delegate void NotifyRoutine(DeviceStatus deviceStatus);
+    public delegate void IntRoutine(uint status);
 }
