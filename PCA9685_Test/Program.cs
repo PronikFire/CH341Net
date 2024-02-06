@@ -28,14 +28,19 @@ public class Program
             WriteLine("Wakeup");
         }
 
-        for (int i = 100; i > 0 ; i--)
+        pca9685.SetPWM(0, 30);
+        pca9685.SetPWM(1, 30);
+        pca9685.SetPWM(2, 30);
+        pca9685.SetPWM(3, 30);
+
+        /*for (int i = 100; i > 0 ; i--)
             pca9685.SetPWM(15, i);
 
         for (int i = 100; i > 0; i--)
             pca9685.SetPWM(14, i);
 
         for (int i = 100; i > 0; i--)
-            pca9685.SetPWM(13, i);
+            pca9685.SetPWM(13, i);*/
 
         WriteLine("\nPress any key for close device");
         ReadLine();

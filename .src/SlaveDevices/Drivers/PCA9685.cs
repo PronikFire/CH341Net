@@ -2,6 +2,8 @@
 using CH341Net;
 using System;
 using System.Reflection;
+using System.ComponentModel;
+using System.Threading.Channels;
 
 namespace SlaveDevices.Drivers;
 
@@ -39,6 +41,85 @@ public class PCA9685 : Slave.I2C
         IsSleep = true;
     }
 
+    #region SetChannelStatus
+    /// <summary>
+    /// Sets the channel status.
+    /// </summary>
+    /// <param name="index">Channel index.</param>
+    /// <param name="status">Сhannel status.</param>
+    public void SetChannelStatus(byte index, ChannelStatus status)
+    {
+        if (index > 15)
+            throw new Exception("Wrong index.");
+
+        SetAddressChannelsStatus(index, status);
+    }
+
+    /// <summary>
+    /// Sets the all channels status.
+    /// </summary>
+    /// <param name="status">Specified channels status.</param>
+    public void SetAllChannelsStatus(ChannelStatus status) => SetAddressChannelsStatus(250, status);
+    #endregion
+
+    #region GetChannelStatus
+    /// <summary>
+    /// Returns the channel status.
+    /// </summary>
+    /// <param name="index">Channel index</param>
+    /// <returns>Returns the status of the specified channel.</returns>
+    public ChannelStatus GetChannelStatus(byte index)
+    {
+        if (index > 15)
+            throw new Exception("Wrong index.");
+
+        var on = (Read((byte)(((index * 4) + 6) + 1)) >> 4) == 1;
+        var off = (Read((byte)(((index * 4) + 6) + 3)) >> 4) == 1;
+
+        if (on & on == off )
+        {
+            SetChannelStatus(index, ChannelStatus.PWM);
+            return ChannelStatus.PWM;
+        }
+
+        if (on)
+            return ChannelStatus.AlwaysOn;
+        
+        if (off)
+            return ChannelStatus.AlwaysOff;
+
+        return ChannelStatus.PWM;
+
+    }
+    #endregion
+
+    #region SetPWM
+    /// <summary>
+    /// Set PWM for all channels.
+    /// </summary>
+    /// <param name="fill">PWM fill percentage. (percentage, maximum 100)</param>
+    public void SetPWMAll(float fill)
+    {
+        if (fill < 0 || fill > 100)
+            throw new Exception("Wrong fill percent.");
+
+
+        if (fill == 100)
+        {
+            SetAllChannelsStatus(ChannelStatus.AlwaysOn);
+            return;
+        }
+
+        if (fill == 0)
+        {
+            SetAllChannelsStatus(ChannelStatus.AlwaysOff);
+            return;
+        }
+
+        SetAllChannelsStatus(ChannelStatus.PWM);
+        SetPWMAll(0, (ushort)(4095 * (fill / 100f)));
+    }
+
     /// <summary>
     /// Set PWM for all channels.
     /// </summary>
@@ -46,16 +127,7 @@ public class PCA9685 : Slave.I2C
     /// <param name="off">Step at which the PWM signal will be LOW. (maximum 4095)</param>
     public void SetPWMAll(ushort on, ushort off)
     {
-        if (on > 4095)
-            throw new Exception("Wrong on.");
-
-        if (off > 4095)
-            throw new Exception("Wrong off.");
-
-        Write(250, (byte)on);
-        Write(251, (byte)(on >> 8));
-        Write(252, (byte)off);
-        Write(253, (byte)(off >> 8));
+        SetAddressPWM(250, on, off);
     }
 
     /// <summary>
@@ -68,6 +140,19 @@ public class PCA9685 : Slave.I2C
         if (fill < 0 || fill > 100)
             throw new Exception("Wrong fill percent.");
 
+        if (fill == 100)
+        {
+            SetChannelStatus(index, ChannelStatus.AlwaysOn);
+            return;
+        }
+
+        if (fill == 0)
+        {
+            SetChannelStatus(index, ChannelStatus.AlwaysOff);
+            return;
+        }
+
+        SetChannelStatus(index, ChannelStatus.PWM);
         SetPWM(index, 0, (ushort)(4095 * (fill / 100f)));
     }
 
@@ -81,15 +166,64 @@ public class PCA9685 : Slave.I2C
         if (index > 15)
             throw new Exception("Wrong index.");
 
+        SetAddressPWM((byte)((index * 4) + 6), on, off);
+    }
+    #endregion
+
+    #region GetPWM
+    /// <summary>
+    /// Get values from PWM channel.
+    /// </summary>
+    /// <param name="index">Channel index.</param>
+    /// <param name="on">Step at which the PWM signal will be HIGH. (maximum 4095)</param>
+    /// <param name="off">Step at which the PWM signal will be LOW. (maximum 4095)</param>
+    public void GetPWM(byte index, out ushort on, out ushort off)
+    {
+        if (index > 15)
+            throw new Exception("Wrong index.");
+
+        on = (ushort)(((Read((byte)(((index * 4) + 6) + 1)) & 0b1111) << 8) | Read((byte)(((index * 4) + 6) + 0)));
+        off = (ushort)(((Read((byte)(((index * 4) + 6) + 3)) & 0b1111) << 8) | Read((byte)(((index * 4) + 6) + 2)));
+    }
+    #endregion
+
+    private void SetAddressPWM(byte startAddress, ushort on, ushort off)
+    {
         if (on > 4095)
             throw new Exception("Wrong on.");
 
         if (off > 4095)
             throw new Exception("Wrong off.");
 
-        Write((byte)((index * 4) + 6 + 0), (byte)on);
-        Write((byte)((index * 4) + 6 + 1), (byte)(on >> 8));
-        Write((byte)((index * 4) + 6 + 2), (byte)off);
-        Write((byte)((index * 4) + 6 + 3), (byte)(off >> 8));
+        Write((byte)(startAddress + 0), (byte)on);
+        Write((byte)(startAddress + 1), (byte)(on >> 8));
+        Write((byte)(startAddress + 2), (byte)off);
+        Write((byte)(startAddress + 3), (byte)(off >> 8));
+    }
+
+    private void SetAddressChannelsStatus(byte startAddress, ChannelStatus status)
+    {
+        switch (status)
+        {
+            case ChannelStatus.AlwaysOn:
+                Write((byte)(startAddress + 1), (byte)(Read((byte)(startAddress + 1)) | (1 << 4)));
+                break;
+
+            case ChannelStatus.AlwaysOff:
+                Write((byte)(startAddress + 3), (byte)(Read((byte)(startAddress + 3)) | (1 << 4)));
+                break;
+
+            case ChannelStatus.PWM:
+                Write((byte)(startAddress + 1), (byte)(Read((byte)(startAddress + 1)) & (~(1 << 4))));
+                Write((byte)(startAddress + 3), (byte)(Read((byte)(startAddress + 3)) & (~(1 << 4))));
+                break;
+        }
+    }
+
+    public enum ChannelStatus : byte
+    {
+        AlwaysOn,
+        AlwaysOff,
+        PWM
     }
 }
