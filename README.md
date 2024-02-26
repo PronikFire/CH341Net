@@ -1,2 +1,2 @@
-Library for interaction with the CH341DLL library.
+CH341DLL library for C#.
 In development... if anyone needs it at all
